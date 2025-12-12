@@ -61,8 +61,8 @@ while res != guess:
 
 # for 循环
 # range(0, 10) 0<= i < 10 的数组
+"""
 i = 0
-
 for i in range(10):
     i += 1 # 这里不会影响循环次数
     print(i)
@@ -71,3 +71,17 @@ print(i) # 外部的 i 是变化的
 
 arr = [x * 2 for x in range(2, 11, 2*2)]
 print(arr)
+"""
+
+# for 循环 跳过 、停止
+
+# 跳过
+for i in range(1,5):
+    print(i)
+    continue
+    print('跳过')
+
+# 停止
+for i in range(1,5):
+    print(i)
+    break
