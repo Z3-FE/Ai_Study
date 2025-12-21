@@ -17,9 +17,9 @@ __pycache__/
 # ----------------------------------------------------------------------
 # 忽略常见的虚拟环境目录
 venv/
-env/
+#env/
 .venv/
-.env/
+#.env/
 # Windows 上的 Anaconda/Miniconda 环境目录
 envs/
 
