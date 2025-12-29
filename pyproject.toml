@@ -1,0 +1,22 @@
+[project]
+name = "ai-study"
+version = "0.1.0"
+description = ""
+authors = [
+    { name = "kaiqiang.zhong", email = "kaiqiang.zhong@zstack.io" }
+]
+readme = "README.md"
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "chromadb (>=1.4.0,<2.0.0)",
+    "langchain-openai (>=1.1.6,<2.0.0)",
+    "langchain (>=1.2.0,<2.0.0)",
+    "pyyaml (>=6.0.3,<7.0.0)",
+    "langchain-community (>=0.4.1,<0.5.0)",
+    "langchain-core (>=1.2.5,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

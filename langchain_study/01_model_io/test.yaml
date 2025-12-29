@@ -1,0 +1,9 @@
+_type: prompt
+input_variables:
+  - product
+  - feature
+template: |
+  请为以下产品撰写一份吸引人的广告文案。
+  产品名称: {product}
+  核心特点: {feature}
+  要求: 广告文案要简洁有力，突出核心特点，并激发读者的购买欲望。

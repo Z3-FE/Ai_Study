@@ -1,0 +1,8 @@
+{
+  "_type": "prompt",
+  "input_variables": [
+    "topic",
+    "style"
+  ],
+  "template": "请用一个关于 {topic} 的简短故事，风格是 {style}。"
+}
