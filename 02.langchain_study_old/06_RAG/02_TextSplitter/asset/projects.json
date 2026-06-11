@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Project Alpha",
+    "status": "active",
+    "team": ["Alice", "Bob"],
+    "details": {
+      "budget": 100000,
+      "deadline": "2024-12-31"
+    }
+  },
+  {
+    "name": "Project Beta",
+    "status": "completed",
+    "team": ["Charlie", "David"],
+    "details": {
+      "budget": 50000,
+      "deadline": "2023-06-30"
+    }
+  }
+]

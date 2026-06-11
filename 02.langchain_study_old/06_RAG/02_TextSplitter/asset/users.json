@@ -1,0 +1,32 @@
+[
+  {
+    "id": 101,
+    "name": "Alice",
+    "role": "Developer",
+    "bio": "Senior Python Developer with 5 years of experience in AI.",
+    "contact": {
+      "email": "alice@example.com",
+      "phone": "123-456-7890"
+    }
+  },
+  {
+    "id": 102,
+    "name": "Bob",
+    "role": "Designer",
+    "bio": "UI/UX Designer focusing on modern web applications.",
+    "contact": {
+      "email": "bob@example.com",
+      "phone": "098-765-4321"
+    }
+  },
+  {
+    "id": 103,
+    "name": "Charlie",
+    "role": "Product Manager",
+    "bio": "Product Manager with a background in data analysis.",
+    "contact": {
+      "email": "charlie@example.com",
+      "phone": "555-555-5555"
+    }
+  }
+]

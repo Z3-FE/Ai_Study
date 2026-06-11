@@ -1,0 +1,17 @@
+LangChain 是一个开源框架，用于构建基于大型语言模型（LLM）的应用程序。
+它的核心理念是将 LLM 与其他计算或知识来源相结合，从而创建更强大的应用。
+
+LangChain 的主要组件包括：
+1. Models（模型）：提供对各种大语言模型的统一接口，如 OpenAI、Hugging Face 等。
+2. Prompts（提示词）：用于管理和优化发送给模型的提示词，支持模板化。
+3. Indexes（索引）：用于构建文档检索系统，支持向量数据库（如 Chroma, FAISS）和文本分割。
+4. Chains（链）：将多个组件（如 Prompt + LLM）链接在一起，形成一个完整的工作流。
+5. Agents（智能体）：让 LLM 决定下一步采取什么行动，可以使用工具（Tools）如谷歌搜索、计算器等。
+6. Memory（记忆）：让 Chatbot 能够记住之前的对话上下文。
+
+关于 RAG (Retrieval-Augmented Generation)：
+RAG 是一种技术，它通过检索外部知识库中的相关信息，并将其作为上下文提供给 LLM，
+从而让模型能够回答训练数据之外的问题，并减少幻觉。
+
+Chroma 是一个流行的开源向量数据库，常用于 LangChain 项目中存储和检索 Embedding 向量。
+它轻量级、易于使用，并且可以直接嵌入到 Python 应用中。

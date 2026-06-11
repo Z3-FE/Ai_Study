@@ -1,0 +1,72 @@
+import operator
+from pathlib import Path
+from typing import Annotated, Literal
+
+from langgraph.graph import StateGraph, START, END
+from pydantic import BaseModel
+
+from IPython.display import display, Image
+
+"""
+Annotated 是 Python 的类型注解增强语法：给类型附加“额外元数据”。
+
+例如：
+Annotated[list, operator.add]
+意思是：
+基础类型是 list
+额外附加了 operator.add 这个元数据
+"""
+
+
+class State(BaseModel):
+    aggregate: Annotated[list, operator.add]
+
+
+def a(state: State):
+    return {"aggregate": ["A"]}
+
+
+def b(state: State):
+    return {"aggregate": ["B"]}
+
+
+def c(state: State):
+    return {"aggregate": ["C"]}
+
+
+def d(state: State):
+    return {"aggregate": ["D"]}
+
+
+graph = StateGraph(State)
+
+graph.add_node(b)
+graph.add_node(c)
+graph.add_node(d)
+graph.add_node(a)
+
+
+def route(state: State) -> Literal["b", END]:
+    print(state.aggregate)
+    if len(state.aggregate) <= 4:
+        return "b"
+    else:
+        return END
+
+
+graph.add_edge(START, "a")
+graph.add_conditional_edges("a", route)
+graph.add_edge("a", "c")  # 单起点 -> 单终点
+graph.add_edge(["c", "b"], "d")  # 多起点 -> 单终点
+
+graph.add_edge("d", "a")
+
+graph = graph.compile()
+
+png = graph.get_graph().draw_mermaid_png()
+out = Path("graph.png")
+out.write_bytes(png)
+
+res = graph.invoke({"aggregate": []})
+print(res)
+# graph.invoke({"aggregate": ["A", "B"]})
