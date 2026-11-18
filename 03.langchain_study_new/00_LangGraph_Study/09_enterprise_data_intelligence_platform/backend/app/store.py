@@ -37,10 +37,14 @@ from .settings import settings
 
 
 def _id(prefix: str) -> str:
+    """按业务前缀生成短 ID，例如 conv_xxx、msg_xxx、run_xxx。"""
+
     return f"{prefix}_{uuid4().hex[:12]}"
 
 
 def _title_from_question(question: str | None) -> str:
+    """根据用户首问生成会话标题，空问题时使用默认标题。"""
+
     normalized = (question or "").strip()
     if not normalized:
         return "新建数据分析"
@@ -48,7 +52,7 @@ def _title_from_question(question: str | None) -> str:
 
 
 def _fake_embedding(text: str) -> list[float]:
-    """A deterministic local vector stub; replace with a real embedding model later."""
+    """生成确定性的本地假向量，后续可替换成真实 embedding 模型。"""
 
     values = [0.0] * 8
     for index, char in enumerate(text[:256]):
@@ -58,14 +62,20 @@ def _fake_embedding(text: str) -> list[float]:
 
 
 def _schema_sql_path() -> Path:
+    """返回业务数据库建表 SQL 文件路径。"""
+
     return Path(__file__).resolve().parents[1] / "sql" / "001_business_api_schema.sql"
 
 
 def _draft_fields_to_json(fields: list[SemanticDraftField]) -> list[dict[str, str]]:
+    """把候选语义字段模型转换为可写入 JSONB 的字典列表。"""
+
     return [field.model_dump() for field in fields]
 
 
 def _field_value(row: dict, label: str, default: str = "") -> str:
+    """从语义字段列表中按中文 label 取值。"""
+
     for item in row.get("fields") or []:
         if item.get("label") == label:
             return item.get("value") or default
@@ -73,6 +83,8 @@ def _field_value(row: dict, label: str, default: str = "") -> str:
 
 
 def _split_field_value(value: str) -> list[str]:
+    """把中文顿号、逗号、斜杠等分隔的字段值拆成字符串数组。"""
+
     if not value:
         return []
     separators = ["、", ",", "，", "/", "；", ";"]
@@ -83,10 +95,14 @@ def _split_field_value(value: str) -> list[str]:
 
 
 def _semantic_page_status(status: str) -> str:
+    """把候选资产状态映射为前端语义资产页面需要的状态。"""
+
     return "published" if status == SemanticDraftStatus.published.value else "pending"
 
 
 def _row_to_conversation(row: dict) -> Conversation:
+    """把数据库 conversation 行转换为 Pydantic Conversation 模型。"""
+
     return Conversation(
         id=row["id"],
         thread_id=row["thread_id"],
@@ -102,6 +118,8 @@ def _row_to_conversation(row: dict) -> Conversation:
 
 
 def _row_to_message(row: dict) -> Message:
+    """把数据库 message 行转换为 Pydantic Message 模型。"""
+
     return Message(
         id=row["id"],
         conversation_id=row["conversation_id"],
@@ -114,6 +132,8 @@ def _row_to_message(row: dict) -> Message:
 
 
 def _row_to_analysis_run(row: dict) -> AnalysisRun:
+    """把数据库 analysis_run 行转换为 Pydantic AnalysisRun 模型。"""
+
     return AnalysisRun(
         id=row["id"],
         conversation_id=row["conversation_id"],
@@ -129,6 +149,8 @@ def _row_to_analysis_run(row: dict) -> AnalysisRun:
 
 
 def _row_to_document(row: dict) -> Document:
+    """把数据库 document 行转换为 Pydantic Document 模型。"""
+
     return Document(
         id=row["id"],
         file_name=row["file_name"],
@@ -140,6 +162,8 @@ def _row_to_document(row: dict) -> Document:
 
 
 def _row_to_draft(row: dict) -> SemanticDraft:
+    """把数据库 semantic_draft 行转换为 Pydantic SemanticDraft 模型。"""
+
     return SemanticDraft(
         id=row["id"],
         document_id=row["document_id"],
@@ -160,6 +184,8 @@ def _row_to_draft(row: dict) -> SemanticDraft:
 
 
 def _row_to_vector_job(row: dict) -> VectorJob:
+    """把数据库 vector_job 行转换为 Pydantic VectorJob 模型。"""
+
     return VectorJob(
         id=row["id"],
         job_type=row["job_type"],
@@ -181,6 +207,8 @@ class PostgresStore:
     """
 
     def __init__(self) -> None:
+        """初始化默认数据源、当前用户，并确保数据库 schema 和种子数据存在。"""
+
         self.data_source = DataSource()
         self.current_user = User(
             id="user_admin",
@@ -192,18 +220,26 @@ class PostgresStore:
         self._seed_if_empty()
 
     def _connect(self):
+        """创建一个 PostgreSQL 连接，统一使用字典行格式。"""
+
         return psycopg.connect(settings.postgres_uri, row_factory=dict_row)
 
     def _ensure_schema(self) -> None:
+        """执行建表 SQL，确保业务表结构已初始化。"""
+
         sql = _schema_sql_path().read_text(encoding="utf-8")
         with self._connect() as conn:
             conn.execute(sql)
 
     def _seed_if_empty(self) -> None:
+        """在空库时写入演示会话和语义资产种子数据。"""
+
         self._seed_conversations_if_empty()
         self._seed_semantic_assets()
 
     def _seed_conversations_if_empty(self) -> None:
+        """如果会话表为空，写入几条演示历史会话和消息。"""
+
         with self._connect() as conn:
             count = conn.execute("SELECT count(*) AS count FROM app.conversations").fetchone()["count"]
             if count:
@@ -230,6 +266,8 @@ class PostgresStore:
                     self._insert_message(conn, message)
 
     def _seed_semantic_assets(self) -> None:
+        """写入指标、维度、数据集、业务术语等语义资产种子数据。"""
+
         seeds = [
             SemanticDraft(
                 id="seed_metric_sales_amount",
@@ -490,6 +528,8 @@ class PostgresStore:
                 )
 
     def _insert_conversation(self, conn, conversation: Conversation) -> None:
+        """把 Conversation 模型插入 conversations 表。"""
+
         conn.execute(
             """
             INSERT INTO app.conversations (
@@ -514,6 +554,8 @@ class PostgresStore:
         )
 
     def _insert_message(self, conn, message: Message) -> None:
+        """把 Message 模型插入 messages 表。"""
+
         conn.execute(
             """
             INSERT INTO app.messages (
@@ -533,6 +575,8 @@ class PostgresStore:
         )
 
     def list_conversations(self, keyword: str | None = None) -> list[Conversation]:
+        """查询会话列表，支持按标题关键字过滤，并按更新时间倒序返回。"""
+
         with self._connect() as conn:
             if keyword:
                 rows = conn.execute(
@@ -555,6 +599,8 @@ class PostgresStore:
         return [_row_to_conversation(row) for row in rows]
 
     def create_conversation(self, payload: ConversationCreate) -> Conversation:
+        """创建一个新会话，并保存采用的语义草稿信息。"""
+
         conversation = Conversation(
             id=_id("conv"),
             thread_id=_id("thread"),
@@ -588,6 +634,8 @@ class PostgresStore:
         return conversation
 
     def get_conversation(self, conversation_id: str) -> Conversation | None:
+        """按 ID 查询单个会话，不存在时返回 None。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM app.conversations WHERE id = %s",
@@ -596,6 +644,8 @@ class PostgresStore:
         return _row_to_conversation(row) if row else None
 
     def update_conversation(self, conversation_id: str, payload: ConversationUpdate) -> Conversation | None:
+        """更新会话标题或状态，返回更新后的会话。"""
+
         current = self.get_conversation(conversation_id)
         if not current:
             return None
@@ -614,6 +664,8 @@ class PostgresStore:
         return _row_to_conversation(row) if row else None
 
     def delete_conversation(self, conversation_id: str) -> bool:
+        """删除会话记录，返回是否真的删除到数据。"""
+
         with self._connect() as conn:
             result = conn.execute(
                 "DELETE FROM app.conversations WHERE id = %s",
@@ -622,6 +674,8 @@ class PostgresStore:
             return result.rowcount > 0
 
     def list_messages(self, conversation_id: str) -> list[Message] | None:
+        """查询某个会话下的所有消息；会话不存在时返回 None。"""
+
         if not self.get_conversation(conversation_id):
             return None
         with self._connect() as conn:
@@ -637,6 +691,8 @@ class PostgresStore:
         return [_row_to_message(row) for row in rows]
 
     def add_message(self, conversation_id: str, payload: MessageCreate) -> Message | None:
+        """向会话追加消息，并同步更新会话标题、摘要和更新时间。"""
+
         if not self.get_conversation(conversation_id):
             return None
         message = Message(
@@ -675,6 +731,8 @@ class PostgresStore:
         return message
 
     def create_analysis_run(self, conversation_id: str, question: str) -> AnalysisRun | None:
+        """为一次用户提问创建分析 run，并把会话状态切换为运行中。"""
+
         conversation = self.get_conversation(conversation_id)
         if not conversation:
             return None
@@ -712,6 +770,8 @@ class PostgresStore:
         return _row_to_analysis_run(row)
 
     def get_analysis_run(self, run_id: str) -> AnalysisRun | None:
+        """根据 run_id 查询一次分析运行记录。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM app.analysis_runs WHERE id = %s",
@@ -720,11 +780,13 @@ class PostgresStore:
         return _row_to_analysis_run(row) if row else None
 
     def update_analysis_run(
-        self,
-        run_id: str,
-        status: AnalysisRunStatus,
-        current_step: str | None = None,
+            self,
+            run_id: str,
+            status: AnalysisRunStatus,
+            current_step: str | None = None,
     ) -> AnalysisRun | None:
+        """更新 run 的状态和当前步骤，完成/失败时记录完成时间。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 """
@@ -747,10 +809,12 @@ class PostgresStore:
         return _row_to_analysis_run(row) if row else None
 
     def update_conversation_status(
-        self,
-        conversation_id: str,
-        status: ConversationStatus,
+            self,
+            conversation_id: str,
+            status: ConversationStatus,
     ) -> Conversation | None:
+        """只更新会话状态和更新时间。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 """
@@ -764,6 +828,8 @@ class PostgresStore:
         return _row_to_conversation(row) if row else None
 
     def create_document(self, payload: DocumentCreate) -> Document:
+        """创建上传文档记录，当前用于指标口径/业务语义文档流程。"""
+
         document = Document(
             id=_id("doc"),
             file_name=payload.file_name,
@@ -790,6 +856,8 @@ class PostgresStore:
         return document
 
     def get_document(self, document_id: str) -> Document | None:
+        """按 ID 查询上传文档记录。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM corpus.documents WHERE id = %s",
@@ -798,6 +866,8 @@ class PostgresStore:
         return _row_to_document(row) if row else None
 
     def extract_semantic_drafts(self, document_id: str) -> list[SemanticDraft] | None:
+        """基于文档生成候选语义资产，并写入 semantic_drafts 表。"""
+
         document = self.get_document(document_id)
         if not document:
             return None
@@ -812,6 +882,8 @@ class PostgresStore:
         return drafts
 
     def _build_drafts_for_document(self, document: Document) -> list[SemanticDraft]:
+        """根据文档类型构造演示用候选指标或业务术语资产。"""
+
         if document.document_type == DocumentType.business_semantics:
             return [
                 SemanticDraft(
@@ -863,6 +935,8 @@ class PostgresStore:
         ]
 
     def _insert_draft(self, conn, draft: SemanticDraft) -> None:
+        """把候选语义资产写入 semantic_drafts 表。"""
+
         conn.execute(
             """
             INSERT INTO semantic.semantic_drafts (
@@ -892,6 +966,8 @@ class PostgresStore:
         )
 
     def list_drafts(self, status: SemanticDraftStatus | None = None) -> list[SemanticDraft]:
+        """查询候选语义资产列表，支持按状态过滤。"""
+
         with self._connect() as conn:
             if status is None:
                 rows = conn.execute(
@@ -914,6 +990,8 @@ class PostgresStore:
         return [_row_to_draft(row) for row in rows]
 
     def update_draft(self, draft_id: str, payload: SemanticDraftUpdate) -> SemanticDraft | None:
+        """更新候选语义资产的标题、描述、映射目标和字段信息。"""
+
         current = self._get_draft(draft_id)
         if not current:
             return None
@@ -945,6 +1023,8 @@ class PostgresStore:
         return _row_to_draft(row) if row else None
 
     def adopt_draft(self, draft_id: str, payload: SemanticDraftReview) -> SemanticDraft | None:
+        """把候选语义资产标记为已采用，并可绑定到指定会话。"""
+
         draft = self._get_draft(draft_id)
         if not draft:
             return None
@@ -993,6 +1073,8 @@ class PostgresStore:
         return _row_to_draft(row) if row else None
 
     def reject_draft(self, draft_id: str) -> SemanticDraft | None:
+        """把候选语义资产标记为已驳回。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 """
@@ -1007,6 +1089,8 @@ class PostgresStore:
 
     def publish_draft(self, draft_id: str, mode: VectorSyncMode = VectorSyncMode.sync) -> tuple[
                                                                                               SemanticDraft, VectorJob] | None:
+        """发布候选语义资产，并创建对应的向量同步任务。"""
+
         draft = self._get_draft(draft_id)
         if not draft:
             return None
@@ -1035,6 +1119,8 @@ class PostgresStore:
         return (_row_to_draft(row), job) if row else None
 
     def _get_draft(self, draft_id: str) -> SemanticDraft | None:
+        """内部按 ID 查询候选语义资产。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM semantic.semantic_drafts WHERE id = %s",
@@ -1049,6 +1135,8 @@ class PostgresStore:
             asset_id: str | None,
             mode: VectorSyncMode,
     ) -> VectorJob:
+        """创建向量同步/重建任务，sync 模式下立即模拟完成。"""
+
         job = VectorJob(
             id=_id("vjob"),
             job_type=job_type,
@@ -1065,6 +1153,8 @@ class PostgresStore:
         return job
 
     def _insert_vector_job(self, conn, job: VectorJob) -> None:
+        """把向量任务写入 vector.embedding_jobs 表。"""
+
         conn.execute(
             """
             INSERT INTO vector.embedding_jobs (
@@ -1087,6 +1177,8 @@ class PostgresStore:
         )
 
     def _complete_vector_job(self, job_id: str) -> None:
+        """模拟完成向量任务，并把对应语义资产写入向量表。"""
+
         job = self._get_vector_job(job_id)
         if not job:
             return
@@ -1136,6 +1228,8 @@ class PostgresStore:
             )
 
     def _get_vector_job(self, job_id: str) -> VectorJob | None:
+        """按 ID 查询向量任务。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 "SELECT * FROM vector.embedding_jobs WHERE id = %s",
@@ -1144,9 +1238,13 @@ class PostgresStore:
         return _row_to_vector_job(row) if row else None
 
     def sync_vector_asset(self, asset_type: str, asset_id: str, mode: VectorSyncMode) -> VectorJob:
+        """为单个语义资产创建向量同步任务。"""
+
         return self.create_vector_job("asset_sync", asset_type, asset_id, mode)
 
     def rebuild_vectors(self, payload: VectorRebuildRequest) -> list[VectorJob]:
+        """按资产类型批量创建向量重建任务。"""
+
         with self._connect() as conn:
             if payload.asset_types:
                 rows = conn.execute(
@@ -1178,6 +1276,8 @@ class PostgresStore:
         ]
 
     def list_vector_jobs(self) -> list[VectorJob]:
+        """查询最近的向量同步/重建任务。"""
+
         with self._connect() as conn:
             rows = conn.execute(
                 """
@@ -1188,7 +1288,33 @@ class PostgresStore:
             ).fetchall()
         return [_row_to_vector_job(row) for row in rows]
 
+    def list_conversation_semantic_assets(self, conversation_id: str) -> list[dict]:
+        """查询当前会话已采用的语义资产快照，供 Agent 构建会话级语义上下文。"""
+
+        with self._connect() as conn:
+            rows = conn.execute(
+                """
+                SELECT draft_id, asset_type, asset_snapshot, created_at
+                FROM app.conversation_semantic_assets
+                WHERE conversation_id = %s
+                ORDER BY created_at ASC
+                """,
+                (conversation_id,),
+            ).fetchall()
+
+        return [
+            {
+                "draft_id": row["draft_id"],
+                "asset_type": row["asset_type"],
+                "asset_snapshot": row["asset_snapshot"] or {},
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]
+
     def _list_asset_rows(self, kind: str) -> list[dict]:
+        """按语义资产类型查询非驳回资产，并按发布优先级排序。"""
+
         with self._connect() as conn:
             return conn.execute(
                 """
@@ -1209,6 +1335,8 @@ class PostgresStore:
             ).fetchall()
 
     def list_metric_assets(self) -> list[dict]:
+        """组装指标管理页面需要的指标资产数据。"""
+
         rows = self._list_asset_rows(SemanticDraftKind.metric.value)
         return [
             {
@@ -1230,6 +1358,8 @@ class PostgresStore:
         ]
 
     def list_dimension_assets(self) -> list[dict]:
+        """组装维度管理页面需要的维度资产数据。"""
+
         rows = self._list_asset_rows(SemanticDraftKind.dimension.value)
         return [
             {
@@ -1252,6 +1382,8 @@ class PostgresStore:
         ]
 
     def list_glossary_assets(self) -> list[dict]:
+        """组装业务术语页面需要的术语和业务规则数据。"""
+
         rows = self._list_asset_rows(SemanticDraftKind.glossary.value)
         rule_rows = self._list_asset_rows(SemanticDraftKind.business_rule.value)
         assets = rows + rule_rows
@@ -1275,6 +1407,8 @@ class PostgresStore:
         ]
 
     def list_dataset_assets(self) -> list[dict]:
+        """读取 Olist 表结构并组装数据集说明页面需要的元数据。"""
+
         metadata = {
             "orders": {
                 "description": "订单主表，记录订单状态、购买时间、审批时间、发货时间和交付时间。",
@@ -1380,6 +1514,8 @@ class PostgresStore:
         ]
 
     def semantic_counts(self) -> dict[str, int]:
+        """统计语义草稿、已发布资产、向量任务和向量记录数量。"""
+
         with self._connect() as conn:
             row = conn.execute(
                 """

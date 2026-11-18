@@ -24,6 +24,8 @@ function Alert({
   variant,
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+  /** 通用提示框组件，用于展示错误、警告和说明信息。 */
+
   return (
     <div
       data-slot="alert"
@@ -35,6 +37,8 @@ function Alert({
 }
 
 function AlertTitle({ className, ...props }: React.ComponentProps<"div">) {
+  /** 提示框标题组件。 */
+
   return (
     <div
       data-slot="alert-title"
@@ -51,6 +55,8 @@ function AlertDescription({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  /** 提示框正文描述组件。 */
+
   return (
     <div
       data-slot="alert-description"
@@ -64,6 +70,8 @@ function AlertDescription({
 }
 
 function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
+  /** 提示框操作区域组件。 */
+
   return (
     <div
       data-slot="alert-action"

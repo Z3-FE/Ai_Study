@@ -43,6 +43,8 @@ import {
 } from '@/components/ui/table';
 
 export default function MetricView() {
+  /** 指标管理页面：加载指标资产，支持搜索/状态过滤，并展示右侧指标详情。 */
+
   const [metrics, setMetrics] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -55,6 +57,8 @@ export default function MetricView() {
     let ignore = false;
 
     async function loadMetrics() {
+      /** 从后端读取指标语义资产，并默认选中第一条作为详情。 */
+
       try {
         setLoading(true);
         const data: any = await apiGet('/api/semantic/assets/metrics');

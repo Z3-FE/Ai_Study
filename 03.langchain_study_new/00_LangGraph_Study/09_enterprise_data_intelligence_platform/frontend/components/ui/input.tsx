@@ -4,6 +4,8 @@ import { Input as InputPrimitive } from "@base-ui/react/input"
 import { cn } from "@/lib/utils"
 
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+  /** 通用输入框组件，统一 input 的基础样式。 */
+
   return (
     <InputPrimitive
       type={type}

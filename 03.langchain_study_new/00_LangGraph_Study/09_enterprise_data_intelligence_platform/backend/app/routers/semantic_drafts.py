@@ -13,14 +13,14 @@ router = APIRouter(prefix="/semantic/drafts", tags=["semantic-drafts"])
 
 @router.get("")
 def list_semantic_drafts(status: SemanticDraftStatus | None = Query(default=None)):
-    """List document-extracted semantic candidates."""
+    """查询文档提取出的候选语义资产，可按审核状态过滤。"""
 
     return {"drafts": store.list_drafts(status)}
 
 
 @router.patch("/{draft_id}")
 def update_semantic_draft(draft_id: str, payload: SemanticDraftUpdate):
-    """Edit a candidate semantic asset before adoption or publish."""
+    """在采用或发布前编辑候选语义资产。"""
 
     draft = store.update_draft(draft_id, payload)
     if not draft:
@@ -30,7 +30,7 @@ def update_semantic_draft(draft_id: str, payload: SemanticDraftUpdate):
 
 @router.post("/{draft_id}/adopt")
 def adopt_semantic_draft(draft_id: str, payload: SemanticDraftReview):
-    """Adopt one semantic candidate into the current conversation context."""
+    """把某个候选语义资产采用到当前会话上下文中。"""
 
     draft = store.adopt_draft(draft_id, payload)
     if not draft:
@@ -40,7 +40,7 @@ def adopt_semantic_draft(draft_id: str, payload: SemanticDraftReview):
 
 @router.post("/{draft_id}/reject")
 def reject_semantic_draft(draft_id: str):
-    """Reject one semantic candidate."""
+    """驳回某个候选语义资产。"""
 
     draft = store.reject_draft(draft_id)
     if not draft:
@@ -50,7 +50,7 @@ def reject_semantic_draft(draft_id: str):
 
 @router.post("/{draft_id}/publish")
 def publish_semantic_draft(draft_id: str, mode: VectorSyncMode = VectorSyncMode.sync):
-    """Publish one semantic candidate globally and trigger vector sync."""
+    """将候选语义资产发布为全局资产，并触发向量索引同步。"""
 
     result = store.publish_draft(draft_id, mode)
     if not result:

@@ -7,6 +7,8 @@ function Card({
   size = "default",
   ...props
 }: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+  /** 通用卡片容器组件。 */
+
   return (
     <div
       data-slot="card"
@@ -21,6 +23,8 @@ function Card({
 }
 
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片头部区域组件。 */
+
   return (
     <div
       data-slot="card-header"
@@ -34,6 +38,8 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片标题组件。 */
+
   return (
     <div
       data-slot="card-title"
@@ -47,6 +53,8 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片描述文本组件。 */
+
   return (
     <div
       data-slot="card-description"
@@ -57,6 +65,8 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片右上角操作区组件。 */
+
   return (
     <div
       data-slot="card-action"
@@ -70,6 +80,8 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片主体内容区组件。 */
+
   return (
     <div
       data-slot="card-content"
@@ -80,6 +92,8 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  /** 卡片底部区域组件。 */
+
   return (
     <div
       data-slot="card-footer"

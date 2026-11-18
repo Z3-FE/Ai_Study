@@ -9,6 +9,8 @@ import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 const Select = SelectPrimitive.Root
 
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
+  /** Select 选项分组组件。 */
+
   return (
     <SelectPrimitive.Group
       data-slot="select-group"
@@ -19,6 +21,8 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
 }
 
 function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
+  /** Select 当前选中值展示组件。 */
+
   return (
     <SelectPrimitive.Value
       data-slot="select-value"
@@ -36,6 +40,8 @@ function SelectTrigger({
 }: SelectPrimitive.Trigger.Props & {
   size?: "sm" | "default"
 }) {
+  /** Select 触发按钮组件，点击后展开选项列表。 */
+
   return (
     <SelectPrimitive.Trigger
       data-slot="select-trigger"
@@ -70,6 +76,8 @@ function SelectContent({
     SelectPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset" | "alignItemWithTrigger"
   >) {
+  /** Select 下拉内容容器组件。 */
+
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -99,6 +107,8 @@ function SelectLabel({
   className,
   ...props
 }: SelectPrimitive.GroupLabel.Props) {
+  /** Select 分组标题组件。 */
+
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
@@ -113,6 +123,8 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.Item.Props) {
+  /** Select 单个选项组件。 */
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -140,6 +152,8 @@ function SelectSeparator({
   className,
   ...props
 }: SelectPrimitive.Separator.Props) {
+  /** Select 选项分隔线组件。 */
+
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
@@ -153,6 +167,8 @@ function SelectScrollUpButton({
   className,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.ScrollUpArrow>) {
+  /** Select 下拉列表向上滚动按钮。 */
+
   return (
     <SelectPrimitive.ScrollUpArrow
       data-slot="select-scroll-up-button"
@@ -172,6 +188,8 @@ function SelectScrollDownButton({
   className,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.ScrollDownArrow>) {
+  /** Select 下拉列表向下滚动按钮。 */
+
   return (
     <SelectPrimitive.ScrollDownArrow
       data-slot="select-scroll-down-button"

@@ -6,6 +6,8 @@ from .settings import settings
 
 
 def create_app() -> FastAPI:
+    """创建业务后端应用，配置跨域并注册会话、运行、语义资产等路由。"""
+
     app = FastAPI(
         title=settings.app_name,
         description="Business API for the enterprise data intelligence platform.",

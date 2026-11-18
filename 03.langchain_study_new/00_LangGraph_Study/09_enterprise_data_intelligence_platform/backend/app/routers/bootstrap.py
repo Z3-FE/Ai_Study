@@ -8,7 +8,7 @@ router = APIRouter(prefix="/app", tags=["app"])
 
 @router.get("/bootstrap")
 def get_app_bootstrap():
-    """Return initial app data used by the frontend shell."""
+    """返回前端应用启动时需要的用户、数据源、会话和语义统计信息。"""
 
     return {
         "current_user": store.current_user,

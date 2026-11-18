@@ -49,6 +49,8 @@ interface HomeViewProps {
 }
 
 export default function HomeView({ onExecuteQuery }: HomeViewProps) {
+  /** 新建会话首页：选择数据源、上传语义/指标文件、创建会话并跳转到分析页。 */
+
   const router = useRouter();
   const [queryInput, setQueryInput] = useState('');
   const [dbDropdownOpen, setDbDropdownOpen] = useState(false);
@@ -68,6 +70,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   const adoptedSemanticDrafts = semanticDrafts.filter((draft) => draft.status === 'adopted');
 
   const formatFileSize = (file: File) => {
+    /** 把浏览器 File 大小格式化为 KB/MB 文本。 */
+
     if (file.size > 1024 * 1024) {
       return (file.size / (1024 * 1024)).toFixed(1) + ' MB';
     }
@@ -80,6 +84,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const buildSemanticDrafts = (category: SemanticUploadCategory, fileName: string) => {
+    /** 根据上传文件类型生成待审核的模拟语义候选项。 */
+
     const sourceDrafts = category === 'metric' ? mockMetricSemanticDrafts : mockGlossarySemanticDrafts;
 
     return sourceDrafts.map((draft) => ({
@@ -92,6 +98,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleTriggerUpload = (category: 'file' | 'glossary' | 'metric') => {
+    /** 记录本次上传类型，并主动触发隐藏文件选择框。 */
+
     setSelectedCategory(category);
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -99,6 +107,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    /** 处理用户选择文件后的上传模拟、语义提取模拟和输入框回填。 */
+
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -163,7 +173,7 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
       setIsUploading(false);
 
       setAttachedFile({
-        name: file.name,
+        name: file.name, 
         size: sizeStr,
         category: selectedCategory
       });
@@ -176,16 +186,22 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleRemoveFile = () => {
+    /** 移除已选择文件，并清空相关语义提取任务和候选项。 */
+
     setAttachedFile(null);
     setSemanticTask(null);
     setSemanticDrafts([]);
   };
 
   const handleUpdateDraft = (updatedDraft: SemanticDraft) => {
+    /** 更新某一条语义候选项的审核编辑结果。 */
+
     setSemanticDrafts((prev) => prev.map((draft) => (draft.id === updatedDraft.id ? updatedDraft : draft)));
   };
 
   const handleAdoptDraft = (draftId: string) => {
+    /** 将某一条语义候选项标记为本会话采用。 */
+
     setSemanticDrafts((prev) =>
       prev.map((draft) =>
         draft.id === draftId
@@ -201,6 +217,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleRejectDraft = (draftId: string) => {
+    /** 将某一条语义候选项标记为驳回。 */
+
     setSemanticDrafts((prev) =>
       prev.map((draft) =>
         draft.id === draftId
@@ -215,6 +233,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleResetSemanticUpload = () => {
+    /** 重置语义上传流程，回到普通提问状态。 */
+
     setSemanticTask(null);
     setSemanticDrafts([]);
     setAttachedFile(null);
@@ -272,6 +292,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   ];
 
   const handleSend = async () => {
+    /** 创建新会话，把首问暂存到 sessionStorage，并跳转到会话详情页自动发送。 */
+
     if (!queryInput.trim() && !attachedFile) return;
     let finalQueryText = queryInput;
     if (attachedFile && !queryInput.includes(attachedFile.name)) {
@@ -297,6 +319,7 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
       }
 
       sessionStorage.setItem(`pending_question:${result.conversation_id}`, finalQueryText);
+      window.dispatchEvent(new CustomEvent('insight:conversations:changed'));
       router.push(`/sessions/${result.conversation_id}`);
     } catch (error) {
       setCreateConversationError(
@@ -308,6 +331,8 @@ export default function HomeView({ onExecuteQuery }: HomeViewProps) {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    /** 支持 Enter 发送问题，Shift+Enter 保留换行输入。 */
+
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();

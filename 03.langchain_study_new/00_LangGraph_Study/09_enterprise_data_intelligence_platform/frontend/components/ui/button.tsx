@@ -46,6 +46,8 @@ function Button({
   size = "default",
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  /** 通用按钮组件，封装项目统一的 variant 和 size 样式。 */
+
   return (
     <ButtonPrimitive
       data-slot="button"

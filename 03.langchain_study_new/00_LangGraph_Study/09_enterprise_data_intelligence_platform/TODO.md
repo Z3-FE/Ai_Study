@@ -142,8 +142,8 @@
 - [x] 实现 `step.completed`。
 - [x] 实现 `message.delta`。
 - [x] 实现 `message.completed`。
-- [ ] 实现 `sql.generated`。
-- [ ] 实现 `sql.reviewed`。
+- [x] 实现 `sql.generated`。
+- [x] 实现 `sql.reviewed`。
 - [ ] 实现 `artifact.created`。
 - [ ] 实现 `sources.created`。
 - [ ] 实现 `audit.created`。
@@ -178,7 +178,7 @@
 
 - [x] 可以查看指标、维度、数据集、业务术语。
 - [x] 进入四个语义资产页面时，同一接口不会因为客户端 effect 双执行而产生重复真实 GET。
-- [ ] Agent 后续生成 SQL 时能读取这些语义资产。
+- [x] Agent 后续生成 SQL 时能读取这些语义资产。
 
 ## Phase 6：LangGraph 最小分析链路
 
@@ -190,16 +190,17 @@
 - [x] 实现用户消息和助手消息写入 PostgreSQL。
 - [x] 实现 `analysis_runs` 与 `run_id` 关联。
 - [x] 实现问题理解节点的最小事件占位。
-- [ ] 实现结构化语义解析节点，优先查询 `semantic.metrics`、`semantic.dimensions`、`semantic.datasets`、`semantic.business_terms`。
+- [x] 实现结构化语义解析节点，优先查询 `semantic.metrics`、`semantic.dimensions`、`semantic.datasets`、`semantic.business_terms`。
 - [ ] 实现低置信度语义召回节点，仅在结构化语义层命中不足时查询向量索引。
-- [ ] 实现指标解析节点。
-- [ ] 实现 SQL 生成节点。
-- [ ] 实现 SQL 审核节点。
+- [x] 实现指标解析节点。
+- [x] 实现 SQL 生成节点。
+- [x] SQL 生成节点支持基于语义资产动态生成 SQL，并保留模板兜底。
+- [x] 实现 SQL 审核节点。
 - [ ] 实现 SQL 执行节点。
 - [ ] 实现数据分析节点。
-- [ ] 实现报告生成节点。
-- [ ] 接入会话级语义资产。
-- [ ] 接入全局语义资产。
+- [x] 实现报告生成节点。
+- [x] 接入会话级语义资产。
+- [x] 接入全局语义资产。
 - [ ] 向量命中后通过 `asset_type + asset_id` 回源查询正式 semantic 表。
 - [ ] 接入用户长期记忆读取，结构化记忆优先，语义型记忆再走向量召回。
 
@@ -212,49 +213,172 @@
 - [ ] 后续再把稳定字段逐步收敛为 `DashboardSpec`，映射到定制化 `KpiCard`、`ChartPanel`、`DataTable`、`SourcePanel` 等组件。
 - [ ] 明确边界：AI 负责生成分析内容和展示建议，前端负责稳定的组件样式、布局、安全渲染和交互状态。
 
+### Semantic Context Service 路线
+
+目标：不要在 `runs.py` 中直接拼全量语义资产，也不要让 AI 层直接管理业务语义表。业务层负责召回、权限、版本和压缩，AI 层只消费本次运行需要的 `semantic_context`。
+
+- [ ] 新增 `backend/app/services/semantic_context_service.py`。
+- [ ] 将 `_build_semantic_context` 从 `runs.py` 迁移到 `SemanticContextService.build_for_run(conversation_id, question, user_id=None)`。
+- [ ] 第一版先做规则召回：根据问题匹配指标、维度、业务术语、会话级语义资产。
+- [ ] 第一版暂不强制接入向量召回，先保证结构化语义资产能稳定命中。
+- [ ] 低置信度时再接入 pgvector 召回：向量只返回候选资产 ID，必须回 PostgreSQL 查询正式资产详情。
+- [ ] 加入语义资产状态过滤：只允许使用 `published` 或当前会话已采用的资产。
+- [ ] 加入语义资产版本字段，后续用于判断缓存是否过期和 Audit 是否存在 stale 记录。
+- [ ] 加入权限占位：`allowed_tables`、`blocked_fields`、`max_limit`。
+- [ ] 将 `semantic_context` 压缩成 AI 层可消费的最小上下文，而不是传递数据库原始对象。
+- [ ] 后续再接 Redis 缓存 `semantic_context:{conversation_id}:{semantic_version}:{question_hash}`。
+
+#### Step 4：压缩上下文怎么实现
+
+压缩不是让大模型总结，也不是把数据随便删掉，而是业务层把“数据库原始资产对象”转换成“Agent 生成 SQL 所需的最小 props”。可以类比前端：后端接口返回一个很大的用户对象，但组件只需要 `id/name/avatar`，就先 map 成组件 props，避免整个大对象进入组件树。
+
+数据库原始对象通常包含：
+
+```json
+{
+  "id": "seed_metric_sales_amount",
+  "document_id": "doc_xxx",
+  "kind": "metric",
+  "status": "published",
+  "title": "销售额",
+  "description": "订单商品成交金额，不包含运费。",
+  "mapping_target": "sales_amount",
+  "confidence": 0.98,
+  "source_document": "指标口径文件资料.md",
+  "source_snippet": "销售额 = SUM(order_items.price)。",
+  "fields": [
+    {"label": "指标 ID", "value": "sales_amount"},
+    {"label": "SQL 表达式", "value": "SUM(order_items.price)"},
+    {"label": "依赖表", "value": "orders、order_items"}
+  ],
+  "created_at": "2026-06-16T10:00:00",
+  "updated_at": "2026-06-16T10:00:00",
+  "vector_status": "synced"
+}
+```
+
+传给 AI 层时压缩成：
+
+```json
+{
+  "metric_id": "sales_amount",
+  "name": "销售额",
+  "definition": "订单商品成交金额，不包含运费。",
+  "sql_expression": "SUM(order_items.price)",
+  "dependencies": ["olist.orders", "olist.order_items"],
+  "synonyms": ["GMV", "成交额", "销售金额"],
+  "source": "published_semantic_asset",
+  "version": 1
+}
+```
+
+最终 `semantic_context` 建议形态：
+
+```json
+{
+  "data_source_id": "olist",
+  "question": "Top 10 品类销售额分别是多少？",
+  "expected_limit": 10,
+  "metrics": [
+    {
+      "metric_id": "sales_amount",
+      "name": "销售额",
+      "definition": "订单商品成交金额，不包含运费。",
+      "sql_expression": "SUM(order_items.price)",
+      "dependencies": ["olist.orders", "olist.order_items"],
+      "synonyms": ["GMV", "成交额", "销售金额"]
+    }
+  ],
+  "dimensions": [
+    {
+      "dimension_id": "product_category",
+      "name": "品类",
+      "field_mapping": "products.product_category_name",
+      "synonyms": ["商品类型", "商品分类"]
+    }
+  ],
+  "datasets": [
+    {
+      "table": "olist.orders",
+      "fields": ["order_id", "order_status", "order_purchase_timestamp"]
+    },
+    {
+      "table": "olist.order_items",
+      "fields": ["order_id", "product_id", "price"]
+    },
+    {
+      "table": "olist.products",
+      "fields": ["product_id", "product_category_name"]
+    }
+  ],
+  "joins": [
+    "olist.orders.order_id = olist.order_items.order_id",
+    "olist.order_items.product_id = olist.products.product_id"
+  ],
+  "default_filters": [
+    "olist.orders.order_status = 'delivered'"
+  ],
+  "permissions": {
+    "allowed_tables": ["olist.orders", "olist.order_items", "olist.products"],
+    "blocked_fields": [],
+    "max_limit": 1000
+  }
+}
+```
+
+压缩规则：
+
+- [ ] 指标只保留：`metric_id`、`name`、`definition`、`sql_expression`、`dependencies`、`synonyms`、`source`、`version`。
+- [ ] 维度只保留：`dimension_id`、`name`、`field_mapping`、`type`、`available_metrics`、`synonyms`、`source`、`version`。
+- [ ] 业务术语只保留：`term_id`、`name`、`type`、`mapping_target`、`explanation`、`synonyms`、`source`、`version`。
+- [ ] 数据集只保留本次 SQL 可能用到的表、字段、主键、常用 Join，不传 UI 展示字段和无关表。
+- [ ] 删除不需要给 AI 的字段：`created_at`、`updated_at`、`confidence`、`vector_status`、前端详情页字段、分页字段、按钮状态、审计展示字段。
+- [ ] 保留来源和版本的最小信息，供 Sources / Audit 展示和后续 stale 校验。
+- [ ] 如果压缩后仍然过大，优先减少候选资产数量，而不是删除 SQL 必需字段。
+
 验收标准：
 
 - [x] 用户问题可以触发普通聊天 LangGraph 流程。
-- [ ] LangGraph 能读取当前会话采用的指标和业务术语。
-- [ ] LangGraph 能优先使用结构化语义表，而不是默认先查向量库。
+- [x] LangGraph 能读取当前会话采用的指标和业务术语。
+- [x] LangGraph 能优先使用结构化语义表，而不是默认先查向量库。
 - [ ] LangGraph 在低置信度时可以使用向量索引召回候选资产，并回源确认正式定义。
-- [ ] LangGraph 能生成 SQL 草稿。
-- [ ] AI 可以生成一份可读的分析内容草稿，即使暂时还没有映射成复杂卡片和图表。
+- [x] LangGraph 能生成 SQL 草稿。
+- [x] AI 可以生成一份可读的分析内容草稿，即使暂时还没有映射成复杂卡片和图表。
 
 ## Phase 7：真实 PostgreSQL 查询
 
-- [ ] 实现只读 SQL 执行工具。
-- [ ] 限制只允许查询 `olist` schema。
-- [ ] 禁止 DDL / DML。
-- [ ] 默认追加或校验 `LIMIT`。
-- [ ] 执行 `哪个品类销售额最高？`。
+- [x] 实现只读 SQL 执行工具。
+- [x] 限制只允许查询 `olist` schema。
+- [x] 禁止 DDL / DML。
+- [x] 默认追加或校验 `LIMIT`。
+- [x] 执行 `哪个品类销售额最高？`。
 - [ ] 执行 `本月商品销售趋势分析`。
-- [ ] 将结果转换为 table artifact。
+- [x] 将结果转换为 table artifact。
 - [ ] 将结果转换为 chart artifact。
 - [ ] 将结果转换为 report artifact。
 
 验收标准：
 
-- [ ] 前端展示真实数据库查询结果。
+- [x] 前端展示真实数据库查询结果。
 - [ ] SQL、表格、图表、结论可以形成闭环。
 
 ## Phase 8：SQL / Sources / Audit 闭环
 
-- [ ] SQL tab 展示生成 SQL。
-- [ ] SQL tab 展示安全检查结果。
-- [ ] Sources tab 展示使用的数据表。
-- [ ] Sources tab 展示使用的字段。
-- [ ] Sources tab 展示使用的指标和维度。
-- [ ] Sources tab 标记来源是全局语义还是本次会话语义。
-- [ ] Audit tab 展示风险等级。
-- [ ] Audit tab 展示审核记录。
-- [ ] Audit tab 展示执行耗时和返回行数。
+- [x] SQL tab 展示生成 SQL。
+- [x] SQL tab 展示安全检查结果。
+- [x] Sources tab 展示使用的数据表。
+- [x] Sources tab 展示使用的字段。
+- [x] Sources tab 展示使用的指标和维度。
+- [x] Sources tab 标记来源是全局语义还是本次会话语义。
+- [x] Audit tab 展示风险等级。
+- [x] Audit tab 展示审核记录。
+- [x] Audit tab 展示执行耗时和返回行数。
 - [ ] Sources tab 展示语义资产是否来自结构化语义表、会话临时资产或向量召回后回源确认。
 - [ ] Audit tab 展示向量命中是否回源确认、是否存在版本不一致或 stale 记录。
 
 验收标准：
 
-- [ ] 每一次分析都可以追溯 SQL、来源和审核记录。
+- [x] 每一次分析都可以追溯 SQL、来源和审核记录。
 - [ ] 面试时可以清楚讲出“不是裸跑 SQL，而是经过安全审核和审计”。
 
 ## Phase 9：Human-in-the-loop

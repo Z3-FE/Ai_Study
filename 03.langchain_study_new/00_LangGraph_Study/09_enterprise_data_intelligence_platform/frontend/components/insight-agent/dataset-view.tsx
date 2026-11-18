@@ -24,6 +24,8 @@ import {
 } from '@/components/ui/table';
 
 export default function DatasetView() {
+  /** 数据集说明页面：展示 Olist 表、字段、查询规则和 Join 元信息。 */
+
   const [tables, setTables] = useState<any[]>([]);
   const [selectedTableName, setSelectedTableName] = useState('orders');
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,6 +36,8 @@ export default function DatasetView() {
     let ignore = false;
 
     async function loadDatasets() {
+      /** 从后端读取数据集表结构，并默认选中 orders 表。 */
+
       try {
         setLoading(true);
         const data: any = await apiGet('/api/semantic/assets/datasets');

@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 
 
 def utcnow() -> datetime:
+    """生成统一的 UTC 时间，作为模型默认创建/更新时间。"""
+
     return datetime.now(timezone.utc)
 
 

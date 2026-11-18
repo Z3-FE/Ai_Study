@@ -9,6 +9,8 @@ function Separator({
   orientation = "horizontal",
   ...props
 }: SeparatorPrimitive.Props) {
+  /** 通用分隔线组件，支持横向和纵向分隔。 */
+
   return (
     <SeparatorPrimitive
       data-slot="separator"

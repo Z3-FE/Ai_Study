@@ -8,18 +8,26 @@ import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
+  /** Dialog 根组件，管理弹窗打开和关闭状态。 */
+
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
+  /** Dialog 触发器组件。 */
+
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
 }
 
 function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
+  /** Dialog Portal 组件，把弹窗挂载到浮层容器。 */
+
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
 }
 
 function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
+  /** Dialog 关闭按钮组件。 */
+
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
 }
 
@@ -27,6 +35,8 @@ function DialogOverlay({
   className,
   ...props
 }: DialogPrimitive.Backdrop.Props) {
+  /** Dialog 遮罩层组件。 */
+
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
@@ -47,6 +57,8 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
 }) {
+  /** Dialog 内容弹层组件，可控制是否显示关闭按钮。 */
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -81,6 +93,8 @@ function DialogContent({
 }
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+  /** Dialog 头部区域组件。 */
+
   return (
     <div
       data-slot="dialog-header"
@@ -98,6 +112,8 @@ function DialogFooter({
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean
 }) {
+  /** Dialog 底部操作区域组件。 */
+
   return (
     <div
       data-slot="dialog-footer"
@@ -118,6 +134,8 @@ function DialogFooter({
 }
 
 function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+  /** Dialog 标题组件。 */
+
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
@@ -134,6 +152,8 @@ function DialogDescription({
   className,
   ...props
 }: DialogPrimitive.Description.Props) {
+  /** Dialog 描述文本组件。 */
+
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"

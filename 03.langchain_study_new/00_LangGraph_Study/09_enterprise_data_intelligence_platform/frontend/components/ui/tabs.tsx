@@ -10,6 +10,8 @@ function Tabs({
   orientation = "horizontal",
   ...props
 }: TabsPrimitive.Root.Props) {
+  /** 通用 Tabs 根组件，控制横向或纵向布局。 */
+
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
@@ -43,6 +45,8 @@ function TabsList({
   variant = "default",
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+  /** Tabs 选项列表组件。 */
+
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
@@ -54,6 +58,8 @@ function TabsList({
 }
 
 function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+  /** 单个 Tab 触发按钮组件。 */
+
   return (
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
@@ -70,6 +76,8 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
 }
 
 function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+  /** Tab 对应内容面板组件。 */
+
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"

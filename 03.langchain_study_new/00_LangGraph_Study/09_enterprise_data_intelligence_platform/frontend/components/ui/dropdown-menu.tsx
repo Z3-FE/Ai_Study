@@ -7,14 +7,20 @@ import { cn } from "@/lib/utils"
 import { ChevronRightIcon, CheckIcon } from "lucide-react"
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
+  /** Dropdown 根组件，管理菜单打开和关闭状态。 */
+
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />
 }
 
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
+  /** Dropdown Portal 组件，把菜单内容挂载到浮层容器。 */
+
   return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
 }
 
 function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
+  /** Dropdown 触发器组件。 */
+
   return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
 }
 
@@ -30,6 +36,8 @@ function DropdownMenuContent({
     MenuPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   >) {
+  /** Dropdown 菜单内容浮层组件。 */
+
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
@@ -50,6 +58,8 @@ function DropdownMenuContent({
 }
 
 function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
+  /** Dropdown 菜单分组组件。 */
+
   return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
 }
 
@@ -60,6 +70,8 @@ function DropdownMenuLabel({
 }: MenuPrimitive.GroupLabel.Props & {
   inset?: boolean
 }) {
+  /** Dropdown 菜单分组标题组件。 */
+
   return (
     <MenuPrimitive.GroupLabel
       data-slot="dropdown-menu-label"
@@ -82,6 +94,8 @@ function DropdownMenuItem({
   inset?: boolean
   variant?: "default" | "destructive"
 }) {
+  /** Dropdown 普通菜单项组件。 */
+
   return (
     <MenuPrimitive.Item
       data-slot="dropdown-menu-item"
@@ -97,6 +111,8 @@ function DropdownMenuItem({
 }
 
 function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
+  /** Dropdown 子菜单根组件。 */
+
   return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />
 }
 
@@ -108,6 +124,8 @@ function DropdownMenuSubTrigger({
 }: MenuPrimitive.SubmenuTrigger.Props & {
   inset?: boolean
 }) {
+  /** Dropdown 子菜单触发项组件。 */
+
   return (
     <MenuPrimitive.SubmenuTrigger
       data-slot="dropdown-menu-sub-trigger"
@@ -132,6 +150,8 @@ function DropdownMenuSubContent({
   className,
   ...props
 }: React.ComponentProps<typeof DropdownMenuContent>) {
+  /** Dropdown 子菜单内容浮层组件。 */
+
   return (
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
@@ -154,6 +174,8 @@ function DropdownMenuCheckboxItem({
 }: MenuPrimitive.CheckboxItem.Props & {
   inset?: boolean
 }) {
+  /** Dropdown 复选菜单项组件。 */
+
   return (
     <MenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
@@ -180,6 +202,8 @@ function DropdownMenuCheckboxItem({
 }
 
 function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
+  /** Dropdown 单选菜单分组组件。 */
+
   return (
     <MenuPrimitive.RadioGroup
       data-slot="dropdown-menu-radio-group"
@@ -196,6 +220,8 @@ function DropdownMenuRadioItem({
 }: MenuPrimitive.RadioItem.Props & {
   inset?: boolean
 }) {
+  /** Dropdown 单选菜单项组件。 */
+
   return (
     <MenuPrimitive.RadioItem
       data-slot="dropdown-menu-radio-item"
@@ -224,6 +250,8 @@ function DropdownMenuSeparator({
   className,
   ...props
 }: MenuPrimitive.Separator.Props) {
+  /** Dropdown 菜单分隔线组件。 */
+
   return (
     <MenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
@@ -237,6 +265,8 @@ function DropdownMenuShortcut({
   className,
   ...props
 }: React.ComponentProps<"span">) {
+  /** Dropdown 右侧快捷键提示文本组件。 */
+
   return (
     <span
       data-slot="dropdown-menu-shortcut"

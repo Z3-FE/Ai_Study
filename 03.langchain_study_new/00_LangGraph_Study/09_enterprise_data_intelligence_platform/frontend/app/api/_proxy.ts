@@ -14,6 +14,8 @@ const HOP_BY_HOP_HEADERS = new Set([
 ]);
 
 function buildTargetUrl(request: Request, path: string[]) {
+  /** 根据 Next API 请求和 path 拼出真实 FastAPI 后端地址。 */
+
   const incomingUrl = new URL(request.url);
   const targetUrl = new URL(`/api/${path.join("/")}`, FASTAPI_BASE_URL);
   targetUrl.search = incomingUrl.search;
@@ -21,6 +23,8 @@ function buildTargetUrl(request: Request, path: string[]) {
 }
 
 function buildForwardHeaders(request: Request) {
+  /** 只转发必要请求头，避免浏览器/代理专用头影响后端。 */
+
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
   const accept = request.headers.get("accept");
@@ -32,6 +36,8 @@ function buildForwardHeaders(request: Request) {
 }
 
 function buildResponseHeaders(upstreamHeaders: Headers) {
+  /** 过滤 hop-by-hop 响应头，生成可安全返回给浏览器的 headers。 */
+
   const headers = new Headers();
 
   upstreamHeaders.forEach((value, key) => {
@@ -44,6 +50,8 @@ function buildResponseHeaders(upstreamHeaders: Headers) {
 }
 
 export async function proxyToFastApi(request: Request, path: string[]) {
+  /** Next.js API 统一代理入口，把前端请求转发到 FastAPI。 */
+
   const method = request.method.toUpperCase();
   const hasBody = method !== "GET" && method !== "HEAD";
   const targetUrl = buildTargetUrl(request, path);

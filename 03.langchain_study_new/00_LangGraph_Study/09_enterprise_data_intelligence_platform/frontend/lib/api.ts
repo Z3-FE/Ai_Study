@@ -2,7 +2,22 @@ const GET_REPLAY_WINDOW_MS = 1000;
 const inFlightGetRequests = new Map<string, Promise<any>>();
 const recentGetResponses = new Map<string, { data: any; expiresAt: number }>();
 
+export function invalidateApiCache(path?: string) {
+  /** 清理前端 GET 请求短缓存，常用于 POST 成功后刷新列表数据。 */
+
+  if (!path) {
+    inFlightGetRequests.clear();
+    recentGetResponses.clear();
+    return;
+  }
+
+  inFlightGetRequests.delete(path);
+  recentGetResponses.delete(path);
+}
+
 export async function apiGet(path: string): Promise<any> {
+  /** 发起 GET 请求，并合并短时间内重复触发的相同请求。 */
+
   const url = path;
   const now = Date.now();
   const recent = recentGetResponses.get(url);
@@ -52,6 +67,8 @@ export async function apiGet(path: string): Promise<any> {
 }
 
 export async function apiPost(path: string, body: unknown): Promise<any> {
+  /** 发起 POST 请求，成功后清理 GET 缓存，保证列表和详情重新拉取。 */
+
   const response = await fetch(path, {
     method: "POST",
     cache: "no-store",
@@ -66,6 +83,8 @@ export async function apiPost(path: string, body: unknown): Promise<any> {
   if (!response.ok) {
     throw new Error(data?.detail ?? "接口请求失败");
   }
+
+  invalidateApiCache();
 
   return data;
 }

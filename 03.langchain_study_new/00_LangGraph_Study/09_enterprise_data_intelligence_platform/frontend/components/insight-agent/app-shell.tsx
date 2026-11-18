@@ -26,6 +26,8 @@ interface RouteMeta {
 }
 
 function getRouteMeta(pathname: string): RouteMeta {
+  /** 根据当前路径返回 header 面包屑、模块名和模块说明。 */
+
   if (pathname === "/") {
     return {
       routeLabel: "分析工作站 / 新建会话",
@@ -84,6 +86,8 @@ function getRouteMeta(pathname: string): RouteMeta {
 }
 
 export default function InsightAgentShell({ children }: InsightAgentShellProps) {
+  /** Insight Agent 全局外壳：渲染左侧菜单、顶部 header 和当前页面内容。 */
+
   const pathname = usePathname();
   const routeMeta = getRouteMeta(pathname);
 

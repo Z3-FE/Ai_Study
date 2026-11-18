@@ -3,6 +3,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+  /** 通用多行文本输入组件，统一 textarea 的基础样式。 */
+
   return (
     <textarea
       data-slot="textarea"

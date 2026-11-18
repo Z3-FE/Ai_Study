@@ -8,7 +8,7 @@ router = APIRouter(prefix="/corpus", tags=["corpus"])
 
 @router.post("/documents")
 def create_document(payload: DocumentCreate):
-    """Register an uploaded metric or business semantics document."""
+    """登记用户上传的指标口径文档或业务语义文档。"""
 
     document = store.create_document(payload)
     return {"document": document}
@@ -16,7 +16,7 @@ def create_document(payload: DocumentCreate):
 
 @router.post("/documents/{document_id}/extract-semantic-assets")
 def extract_semantic_assets(document_id: str):
-    """Extract candidate semantic assets from one document."""
+    """从指定文档中提取候选语义资产，供人工审核采用。"""
 
     drafts = store.extract_semantic_drafts(document_id)
     if drafts is None:

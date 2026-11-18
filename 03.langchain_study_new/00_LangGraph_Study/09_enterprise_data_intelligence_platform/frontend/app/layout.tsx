@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  /** Next.js 全局布局入口，包裹侧边栏、全局 Tooltip 和调试运行时。 */
+
   return (
       <html lang="zh-CN" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
         <body>

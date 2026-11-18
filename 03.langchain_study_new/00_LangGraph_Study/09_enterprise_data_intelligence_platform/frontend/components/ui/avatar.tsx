@@ -12,6 +12,8 @@ function Avatar({
 }: AvatarPrimitive.Root.Props & {
   size?: "default" | "sm" | "lg"
 }) {
+  /** 通用头像根组件，控制头像尺寸和外框样式。 */
+
   return (
     <AvatarPrimitive.Root
       data-slot="avatar"
@@ -26,6 +28,8 @@ function Avatar({
 }
 
 function AvatarImage({ className, ...props }: AvatarPrimitive.Image.Props) {
+  /** 头像图片组件。 */
+
   return (
     <AvatarPrimitive.Image
       data-slot="avatar-image"
@@ -42,6 +46,8 @@ function AvatarFallback({
   className,
   ...props
 }: AvatarPrimitive.Fallback.Props) {
+  /** 头像兜底内容组件，图片不可用时展示。 */
+
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"
@@ -55,6 +61,8 @@ function AvatarFallback({
 }
 
 function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+  /** 头像角标组件，用于在线状态等提示。 */
+
   return (
     <span
       data-slot="avatar-badge"
@@ -71,6 +79,8 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
 }
 
 function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+  /** 头像组容器组件。 */
+
   return (
     <div
       data-slot="avatar-group"
@@ -87,6 +97,8 @@ function AvatarGroupCount({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  /** 头像组数量补充组件。 */
+
   return (
     <div
       data-slot="avatar-group-count"

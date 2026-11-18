@@ -11,6 +11,8 @@ from .schemas import AgentChatMessage, AgentChatStreamRequest
 
 
 def _to_langchain_message(message: AgentChatMessage) -> BaseMessage:
+    """把接口层传入的 role/content 消息转换为 LangChain 消息对象。"""
+
     if message.role in {"user", "human"}:
         return HumanMessage(content=message.content)
     if message.role == "assistant":
@@ -21,6 +23,8 @@ def _to_langchain_message(message: AgentChatMessage) -> BaseMessage:
 
 
 def create_app() -> FastAPI:
+    """创建 AI Agent 服务，提供健康检查和 LangGraph 聊天流式接口。"""
+
     app = FastAPI(
         title="Insight Agent AI Service",
         description="LangGraph AI layer for the enterprise data intelligence platform.",
@@ -29,16 +33,24 @@ def create_app() -> FastAPI:
 
     @app.get("/api/health")
     def health_check():
+        """返回 AI 层健康状态，方便业务后端或开发者确认服务是否启动。"""
+
         return {"status": "ok", "service": "ai_agent"}
 
     @app.post("/api/chat/stream")
     async def stream_chat(payload: AgentChatStreamRequest):
-        """Stream LangGraph chat events as Server-Sent Events."""
+        """接收后端转发的聊天消息，并以 SSE 形式返回 LangGraph 执行事件。"""
 
         messages = [_to_langchain_message(message) for message in payload.messages]
 
         async def event_stream():
-            async for event in stream_chat_graph(messages, payload.thread_id):
+            """把 LangGraph 事件包装成 SSE data 行返回给调用方。"""
+
+            async for event in stream_chat_graph(
+                    messages,
+                    payload.thread_id,
+                    semantic_context=payload.semantic_context,
+            ):
                 yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
 
         return StreamingResponse(

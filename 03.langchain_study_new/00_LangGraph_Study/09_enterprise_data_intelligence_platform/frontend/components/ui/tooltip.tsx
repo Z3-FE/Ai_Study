@@ -8,6 +8,8 @@ function TooltipProvider({
   delay = 0,
   ...props
 }: TooltipPrimitive.Provider.Props) {
+  /** Tooltip 全局提供器，配置提示出现延迟。 */
+
   return (
     <TooltipPrimitive.Provider
       data-slot="tooltip-provider"
@@ -18,10 +20,14 @@ function TooltipProvider({
 }
 
 function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
+  /** Tooltip 根组件，管理提示框状态。 */
+
   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />
 }
 
 function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
+  /** Tooltip 触发器组件。 */
+
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
 }
 
@@ -38,6 +44,8 @@ function TooltipContent({
     TooltipPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
   >) {
+  /** Tooltip 浮层内容组件。 */
+
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Positioner

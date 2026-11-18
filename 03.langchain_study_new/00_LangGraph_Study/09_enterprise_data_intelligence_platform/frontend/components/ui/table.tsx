@@ -5,6 +5,8 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
+  /** 通用表格容器组件。 */
+
   return (
     <div
       data-slot="table-container"
@@ -20,6 +22,8 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
+  /** 表格头部组件。 */
+
   return (
     <thead
       data-slot="table-header"
@@ -30,6 +34,8 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
 }
 
 function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
+  /** 表格主体组件。 */
+
   return (
     <tbody
       data-slot="table-body"
@@ -40,6 +46,8 @@ function TableBody({ className, ...props }: React.ComponentProps<"tbody">) {
 }
 
 function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
+  /** 表格底部汇总区域组件。 */
+
   return (
     <tfoot
       data-slot="table-footer"
@@ -53,6 +61,8 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
 }
 
 function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
+  /** 表格行组件。 */
+  
   return (
     <tr
       data-slot="table-row"
@@ -66,6 +76,8 @@ function TableRow({ className, ...props }: React.ComponentProps<"tr">) {
 }
 
 function TableHead({ className, ...props }: React.ComponentProps<"th">) {
+  /** 表头单元格组件。 */
+
   return (
     <th
       data-slot="table-head"
@@ -79,6 +91,8 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
 }
 
 function TableCell({ className, ...props }: React.ComponentProps<"td">) {
+  /** 表格数据单元格组件。 */
+
   return (
     <td
       data-slot="table-cell"
@@ -95,6 +109,8 @@ function TableCaption({
   className,
   ...props
 }: React.ComponentProps<"caption">) {
+  /** 表格说明文字组件。 */
+
   return (
     <caption
       data-slot="table-caption"

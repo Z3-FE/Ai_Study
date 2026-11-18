@@ -34,6 +34,8 @@ interface SemanticUploadReviewProps {
 }
 
 function getKindLabel(kind: SemanticDraft["kind"]) {
+  /** 把候选资产类型转换为审核卡片里的中文标签。 */
+
   switch (kind) {
     case "metric":
       return "指标候选";
@@ -49,6 +51,8 @@ function getKindLabel(kind: SemanticDraft["kind"]) {
 }
 
 function getStatusClass(status: SemanticDraft["status"]) {
+  /** 根据候选资产审核状态返回对应的徽标样式。 */
+
   if (status === "adopted") {
     return "bg-emerald-50 text-emerald-600 border-emerald-100";
   }
@@ -61,6 +65,8 @@ function getStatusClass(status: SemanticDraft["status"]) {
 }
 
 function getStatusText(status: SemanticDraft["status"]) {
+  /** 把候选资产审核状态转换为中文展示文本。 */
+
   if (status === "adopted") return "已采用";
   if (status === "rejected") return "已驳回";
   return "待审核";
@@ -75,6 +81,8 @@ export default function SemanticUploadReview({
   onRejectDraft,
   onReset,
 }: SemanticUploadReviewProps) {
+  /** 语义上传审核组件：展示 AI 提取候选项，并支持编辑、采用和驳回。 */
+
   const [selectedDraftId, setSelectedDraftId] = useState<string>("");
   const [editingDraftId, setEditingDraftId] = useState<string>("");
   const [editTitle, setEditTitle] = useState("");
@@ -100,6 +108,8 @@ export default function SemanticUploadReview({
   const adoptedCount = adoptedDrafts.length;
 
   const startEdit = (draft: SemanticDraft) => {
+    /** 进入编辑状态，并把当前候选项内容填入表单。 */
+
     setEditingDraftId(draft.id);
     setEditTitle(draft.title);
     setEditDescription(draft.description);
@@ -107,6 +117,8 @@ export default function SemanticUploadReview({
   };
 
   const saveEdit = () => {
+    /** 保存候选项编辑结果，并回传给父组件更新状态。 */
+
     if (!selectedDraft) return;
 
     onUpdateDraft({

@@ -40,6 +40,8 @@ import {
 } from '@/components/ui/table';
 
 export default function GlossaryView() {
+  /** 业务术语页面：展示术语别名、业务规则和映射目标。 */
+
   const [glossaries, setGlossaries] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -52,6 +54,8 @@ export default function GlossaryView() {
     let ignore = false;
 
     async function loadGlossary() {
+      /** 从后端读取业务术语资产，并默认选中第一条作为详情。 */
+
       try {
         setLoading(true);
         const data: any = await apiGet('/api/semantic/assets/glossary');

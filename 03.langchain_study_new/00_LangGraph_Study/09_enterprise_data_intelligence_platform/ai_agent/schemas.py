@@ -11,3 +11,4 @@ class AgentChatMessage(BaseModel):
 class AgentChatStreamRequest(BaseModel):
     thread_id: str
     messages: list[AgentChatMessage] = Field(default_factory=list)
+    semantic_context: dict = Field(default_factory=dict)

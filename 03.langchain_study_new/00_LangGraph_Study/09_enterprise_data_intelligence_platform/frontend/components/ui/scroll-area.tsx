@@ -10,6 +10,8 @@ function ScrollArea({
   children,
   ...props
 }: ScrollAreaPrimitive.Root.Props) {
+  /** 通用滚动区域组件，封装视口和滚动条。 */
+
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -33,6 +35,8 @@ function ScrollBar({
   orientation = "vertical",
   ...props
 }: ScrollAreaPrimitive.Scrollbar.Props) {
+  /** 滚动条组件，支持横向和纵向。 */
+
   return (
     <ScrollAreaPrimitive.Scrollbar
       data-slot="scroll-area-scrollbar"

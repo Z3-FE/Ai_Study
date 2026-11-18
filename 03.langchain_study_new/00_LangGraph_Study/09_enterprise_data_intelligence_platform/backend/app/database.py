@@ -6,7 +6,7 @@ from .settings import settings
 
 
 def check_database_connection() -> dict[str, str | bool]:
-    """Return a lightweight PostgreSQL connectivity check without failing app startup."""
+    """检查 PostgreSQL 连接状态，返回数据库名、用户或错误信息。"""
 
     try:
         with psycopg.connect(settings.postgres_uri, connect_timeout=2) as conn:

@@ -33,6 +33,8 @@ function Badge({
   render,
   ...props
 }: useRender.ComponentProps<"span"> & VariantProps<typeof badgeVariants>) {
+  /** 通用徽标组件，用于展示状态、分类和标签。 */
+
   return useRender({
     defaultTagName: "span",
     props: mergeProps<"span">(

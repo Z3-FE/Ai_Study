@@ -8,14 +8,14 @@ router = APIRouter(prefix="/conversations", tags=["conversations"])
 
 @router.get("")
 def list_conversations(keyword: str | None = Query(default=None)):
-    """List conversations for the left sidebar."""
+    """查询会话列表，主要供左侧历史记录使用。"""
 
     return {"conversations": store.list_conversations(keyword)}
 
 
 @router.post("")
 def create_conversation(payload: ConversationCreate):
-    """Create a new business conversation and its LangGraph thread id."""
+    """创建一个业务会话，并同时生成后续 LangGraph 使用的 thread_id。"""
 
     conversation = store.create_conversation(payload)
     return {
@@ -27,7 +27,7 @@ def create_conversation(payload: ConversationCreate):
 
 @router.get("/{conversation_id}")
 def get_conversation(conversation_id: str):
-    """Fetch one conversation detail by id."""
+    """根据会话 ID 查询单个会话详情。"""
 
     conversation = store.get_conversation(conversation_id)
     if not conversation:
@@ -37,7 +37,7 @@ def get_conversation(conversation_id: str):
 
 @router.put("/{conversation_id}")
 def update_conversation(conversation_id: str, payload: ConversationUpdate):
-    """Update conversation title or status."""
+    """更新会话标题或状态。"""
 
     conversation = store.update_conversation(conversation_id, payload)
     if not conversation:
@@ -47,7 +47,7 @@ def update_conversation(conversation_id: str, payload: ConversationUpdate):
 
 @router.delete("/{conversation_id}")
 def delete_conversation(conversation_id: str):
-    """Delete one conversation and its messages."""
+    """删除一个会话以及它关联的消息。"""
 
     deleted = store.delete_conversation(conversation_id)
     if not deleted:
@@ -57,7 +57,7 @@ def delete_conversation(conversation_id: str):
 
 @router.get("/{conversation_id}/messages")
 def list_messages(conversation_id: str):
-    """List frontend-display messages under one conversation."""
+    """查询某个会话下用于前端展示的消息列表。"""
 
     messages = store.list_messages(conversation_id)
     if messages is None:
@@ -67,7 +67,7 @@ def list_messages(conversation_id: str):
 
 @router.post("/{conversation_id}/messages")
 def create_message(conversation_id: str, payload: MessageCreate):
-    """Append a user or assistant message to one conversation."""
+    """向某个会话追加一条用户消息或助手消息。"""
 
     message = store.add_message(conversation_id, payload)
     if not message:

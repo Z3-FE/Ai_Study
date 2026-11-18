@@ -39,6 +39,8 @@ import {
 } from '@/components/ui/table';
 
 export default function DimensionView() {
+  /** 维度管理页面：加载维度资产，支持搜索/类型过滤，并展示右侧维度详情。 */
+
   const [dimensions, setDimensions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -51,6 +53,8 @@ export default function DimensionView() {
     let ignore = false;
 
     async function loadDimensions() {
+      /** 从后端读取维度语义资产，并默认选中一条作为详情。 */
+
       try {
         setLoading(true);
         const data: any = await apiGet('/api/semantic/assets/dimensions');

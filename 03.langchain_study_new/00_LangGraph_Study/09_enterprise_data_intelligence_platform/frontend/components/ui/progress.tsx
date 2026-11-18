@@ -10,6 +10,8 @@ function Progress({
   value,
   ...props
 }: ProgressPrimitive.Root.Props) {
+  /** 通用进度条根组件，自动组合轨道和进度指示器。 */
+
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -26,6 +28,8 @@ function Progress({
 }
 
 function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+  /** 进度条轨道组件。 */
+
   return (
     <ProgressPrimitive.Track
       className={cn(
@@ -42,6 +46,8 @@ function ProgressIndicator({
   className,
   ...props
 }: ProgressPrimitive.Indicator.Props) {
+  /** 进度条已完成部分组件。 */
+
   return (
     <ProgressPrimitive.Indicator
       data-slot="progress-indicator"
@@ -52,6 +58,8 @@ function ProgressIndicator({
 }
 
 function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
+  /** 进度条文字标签组件。 */
+
   return (
     <ProgressPrimitive.Label
       className={cn("text-sm font-medium", className)}
@@ -62,6 +70,8 @@ function ProgressLabel({ className, ...props }: ProgressPrimitive.Label.Props) {
 }
 
 function ProgressValue({ className, ...props }: ProgressPrimitive.Value.Props) {
+  /** 进度条数值组件。 */
+
   return (
     <ProgressPrimitive.Value
       className={cn(

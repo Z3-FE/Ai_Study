@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -17,7 +17,7 @@ import {
   Tags,
   User,
 } from "lucide-react";
-import { mockConversations } from "../../data/insight-agent";
+import { apiGet, invalidateApiCache } from "../../lib/api";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -30,21 +30,91 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
+interface SidebarConversation {
+  id: string;
+  title: string;
+  updated_at?: string;
+  created_at?: string;
+  last_message_preview?: string | null;
+}
+
+function formatConversationTime(value?: string) {
+  /** 把后端更新时间格式化为侧边栏展示用的时间文本。 */
+
+  if (!value) return "--";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "--";
+
+  const now = new Date();
+  const isToday = date.toDateString() === now.toDateString();
+
+  if (isToday) {
+    return date.toLocaleTimeString("zh-CN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  return date.toLocaleDateString("zh-CN", {
+    month: "2-digit",
+    day: "2-digit",
+  });
+}
+
 export default function Sidebar() {
+  /** 左侧导航栏：展示新建会话、历史会话、数据源和语义资产入口。 */
+
   const pathname = usePathname();
   const [semanticExpanded, setSemanticExpanded] = useState(true);
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [searchHistory, setSearchHistory] = useState("");
+  const [conversations, setConversations] = useState<SidebarConversation[]>([]);
+  const [isLoadingConversations, setIsLoadingConversations] = useState(true);
+  const [conversationError, setConversationError] = useState("");
 
   const activeConversationId = pathname.startsWith("/sessions/")
     ? decodeURIComponent(pathname.split("/").filter(Boolean).at(-1) ?? "")
     : "";
 
-  const filteredConversations = mockConversations.filter((conversation) =>
+  const loadConversations = useCallback(async () => {
+    /** 从后端拉取真实会话列表，供历史记录区域展示。 */
+
+    try {
+      setIsLoadingConversations(true);
+      const data = await apiGet("/api/conversations");
+      setConversations(data.conversations ?? []);
+      setConversationError("");
+    } catch (error) {
+      setConversationError(error instanceof Error ? error.message : "会话列表加载失败");
+    } finally {
+      setIsLoadingConversations(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadConversations();
+  }, [loadConversations, pathname]);
+
+  useEffect(() => {
+    const handleConversationChanged = () => {
+      invalidateApiCache("/api/conversations");
+      void loadConversations();
+    };
+
+    window.addEventListener("insight:conversations:changed", handleConversationChanged);
+    return () => {
+      window.removeEventListener("insight:conversations:changed", handleConversationChanged);
+    };
+  }, [loadConversations]);
+
+  const filteredConversations = conversations.filter((conversation) =>
     conversation.title.toLowerCase().includes(searchHistory.toLowerCase()),
   );
 
   const navItemClass = (isActive: boolean) =>
+    /** 根据是否激活生成一级导航项样式。 */
+
     cn(
       "w-full flex items-center gap-2 py-2.5 px-3 rounded-lg font-medium transition-colors",
       isActive
@@ -53,6 +123,8 @@ export default function Sidebar() {
     );
 
   const semanticItemClass = (isActive: boolean) =>
+    /** 根据是否激活生成语义资产二级菜单样式。 */
+
     cn(
       "w-full text-left py-2 px-3 rounded-lg flex items-center gap-2 transition-colors text-xs font-semibold",
       isActive ? "bg-blue-50 text-blue-600" : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-800",
@@ -120,35 +192,40 @@ export default function Sidebar() {
                   </div>
                 </div>
 
-                {filteredConversations.map((conversation) => {
-                  const isActive = activeConversationId === conversation.id;
+                <div className="max-h-[210px] space-y-0.5 overflow-y-auto pr-1">
+                  {isLoadingConversations && (
+                    <div className="p-2 text-center text-[11px] font-semibold text-slate-400">加载会话中...</div>
+                  )}
 
-                  return (
-                    <Link
-                      key={conversation.id}
-                      href={`/sessions/${conversation.id}`}
-                      className={cn(
-                        "w-full text-left py-2 px-2.5 rounded-lg flex items-center justify-between group transition-all text-xs font-medium",
-                        isActive
-                          ? "bg-blue-50 text-blue-600 border border-blue-100"
-                          : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-800",
-                      )}
-                    >
-                      <span className="truncate max-w-[140px] font-sans font-medium">{conversation.title}</span>
-                      <span className="text-[10px] text-slate-400 group-hover:hidden">{conversation.date}</span>
-                      <span className="text-[10px] hidden group-hover:inline text-blue-600">打开</span>
-                    </Link>
-                  );
-                })}
+                  {conversationError && (
+                    <div className="p-2 text-center text-[11px] font-semibold text-rose-500">{conversationError}</div>
+                  )}
 
-                {filteredConversations.length === 0 && (
-                  <div className="text-[11px] text-slate-400 p-2 text-center">暂无符合条件的历史</div>
-                )}
+                  {!isLoadingConversations && !conversationError && filteredConversations.map((conversation) => {
+                    const isActive = activeConversationId === conversation.id;
+                    const timeText = formatConversationTime(conversation.updated_at ?? conversation.created_at);
 
-                <div className="p-1 text-center">
-                  <Link href="/sessions/c1" className="text-[11px] text-blue-600 hover:underline font-medium">
-                    查看全部会话 (23) ›
-                  </Link>
+                    return (
+                      <Link
+                        key={conversation.id}
+                        href={`/sessions/${conversation.id}`}
+                        className={cn(
+                          "w-full text-left py-2 px-2.5 rounded-lg flex items-center justify-between group transition-all text-xs font-medium",
+                          isActive
+                            ? "bg-blue-50 text-blue-600 border border-blue-100"
+                            : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-800",
+                        )}
+                      >
+                        <span className="truncate max-w-[140px] font-sans font-medium">{conversation.title}</span>
+                        <span className="text-[10px] text-slate-400 group-hover:hidden">{timeText}</span>
+                        <span className="text-[10px] hidden group-hover:inline text-blue-600">打开</span>
+                      </Link>
+                    );
+                  })}
+
+                  {!isLoadingConversations && !conversationError && filteredConversations.length === 0 && (
+                    <div className="text-[11px] text-slate-400 p-2 text-center">暂无符合条件的历史</div>
+                  )}
                 </div>
               </div>
             )}

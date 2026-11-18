@@ -29,6 +29,8 @@ import {
 } from '@/components/ui/table';
 
 export default function DashboardView() {
+  /** 静态分析看板演示页：展示步骤、SQL、来源和审计 Tab 的目标样式。 */
+
   const [activeTab, setActiveTab] = useState<'steps' | 'sql' | 'sources' | 'audit'>('steps');
   const [copied, setCopied] = useState(false);
   const [selectedTable, setSelectedTable] = useState('orders');
@@ -98,6 +100,8 @@ export default function DashboardView() {
   ];
 
   const handleCopy = () => {
+    /** 复制演示 SQL 到剪贴板，并短暂显示复制成功状态。 */
+
     navigator.clipboard.writeText(generatedSQLContent);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
